@@ -24,5 +24,19 @@
                     window.open("","ddb-popup",);
                 }
             });
+
+            ddbButton.contextmenu(ev => {
+                ev.preventDefault();
+                ddbURLForm = new DDBURLEntryForm();
+                ddbURLForm.render();
+            })
         });
+    
+    class DDBURLEntryForm extends FormApplication {
+        constructor(){
+            super.constructor();
+        }
+    }
+
+    
 })();
