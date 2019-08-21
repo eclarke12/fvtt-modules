@@ -5,26 +5,56 @@ Hooks.on("ready", () => {
 class DDBPopper {
     constructor(){
         this._hookRenderActorSheet();
+        this.existingPopup = null;
     }
 
     CONFIG = {
-        ddbLogo: "https://www.dndbeyond.com/Content/1-0-518-0/Skins/Waterdeep/images/dnd-beyond-b-red.png",
+        ddbLogo: "modules/ddb-popper/icons/dnd-beyond-b-red.png",
         imgStyle: `display:inline-block;vertical-align:middle;height:16px`,
         aStyle: `display:inline-block;vertical-align:baseline`
+    }
+
+    static get SETTINGS_META() {
+        return {
+            name: "ddbCharacterURL",
+            type: String,
+            scope: "world",
+            default: "",
+            onChange: s => {
+                console.log("new setting:",s);
+                //rerender the open actor sheet
+            }
+        }
     }
 
     _hookRenderActorSheet() {
         Hooks.on("renderActorSheet5eCharacter", (app, html, data) => {
             console.log("app:",app,"html:",html,"data:",data);
-            this._addDDBButton(html, data)
+            this._addDDBButton(html, data);
         });
     }
 
-    _addDDBButton (html, data) {
+    async _getActorDDBURL(data) {
+        let ddbURL = "";
+
+        try {
+            ddbURL = await game.settings.get("ddb-popper", data.actor._id);
+        } catch (e) {
+            if(e.message == "This is not a registered game setting") {
+                ddbURL = "";
+            } else {
+                throw(e);
+            }
+        } finally {
+            return ddbURL;
+        }
+    }
+
+    async _addDDBButton (html, data) {
         const windowHeader = html.parent().parent().find(".window-header");
         const windowCloseBtn = windowHeader.find(".close");
         const ddbButton = $(`<a class="ddb-popup" style=${this.CONFIG.aStyle}><img src=${this.CONFIG.ddbLogo} style=${this.CONFIG.imgStyle}> DDB</a>`);
-        let ddbUrl = "https://www.dndbeyond.com/profile/errational/characters/15260756"
+        const actorDDBURL = await this._getActorDDBURL(data);
         
         windowHeader.find('.ddb-popup').remove();
         windowCloseBtn.before(ddbButton);
@@ -32,12 +62,13 @@ class DDBPopper {
         // Handle button clicks
         ddbButton.click(ev => {
             ev.preventDefault();
-            let existingPopup = window.open("", "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=968");
 
-            if(existingPopup.location.href == "about:blank"){
-                existingPopup.location = ddbUrl;
+            if (this.existingPopup != null && this.existingPopup.location.href == actorDDBURL){
+                this.existingPopup.focus();
+            } else if ((this.existingPopup == null || this.existingPopup.closed) && actorDDBURL.length > 0){
+                this.existingPopup = window.open(actorDDBURL, "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=968");
             } else {
-                window.open("","ddb-popup",);
+                new DDBURLEntryForm(data, {closeOnSubmit: true}).render(true);
             }
         });
 
@@ -46,15 +77,6 @@ class DDBPopper {
             new DDBURLEntryForm(data, {closeOnSubmit: true}).render(true);
         });
     }
-
-    async _updateActor (actor, data) {
-        const flags = {
-            "flags": {
-                "ddb-popper.ddbURL": data
-            }
-        }
-        await actor.update(flags,{displaySheet: false});
-    }
 }
     
 class DDBURLEntryForm extends FormApplication {
@@ -62,6 +84,7 @@ class DDBURLEntryForm extends FormApplication {
         super(...options);
         console.log(...options);
         this.data = options[0];
+        this.actorId = this.data.actor._id;
         }
   
     static get defaultOptions() {
@@ -79,18 +102,34 @@ class DDBURLEntryForm extends FormApplication {
      * for a given actor (by id), find the setting
      */
     async getData() {
-        return {
-            settings: game.settings.get("ddb-popper", this.data.id)
-        };
+        const data = {};
+        try {
+            data.ddbCharacterURL = game.settings.get("ddb-popper", this.actorId);
+        } catch (e) {
+            if (e.message == "This is not a registered game setting") {
+                data.ddbCharacterURL = "";
+            } else {
+                throw(e);
+            }
+        }
+        finally {
+            return data 
+        }
     }
 
-    _updateObject(event, formData) {
+    async _updateObject(event, formData) {
         try {
-            game.settings.set("ddb-popper", this.data.id, formdata.ddbURL);
+            //game.settings.set("ddb-popper", this.actorId, formData.ddbCharacterURL);
+            await game.settings.get("ddb-popper", this.actorId);
         } catch (e) {
-            if(e.message == "That is not a registered game setting") {
-                game.settings.register("ddb-popper", this.data.id, formdata.ddbURL);
+            if(e.message == "This is not a registered game setting") {
+                await game.settings.register("ddb-popper", this.actorId, DDBPopper.SETTINGS_META);
+            } else {
+                throw(e);
             }
+            
+        } finally {
+            game.settings.set("ddb-popper", this.actorId, formData.ddbCharacterURL);
         }
         
     }
