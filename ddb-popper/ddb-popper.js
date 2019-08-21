@@ -4,7 +4,6 @@ Hooks.on("ready", () => {
 
 class DDBPopper {
     constructor(){
-        this._registerSettings();
         this._hookRenderActorSheet();
     }
 
@@ -33,7 +32,7 @@ class DDBPopper {
         // Handle button clicks
         ddbButton.click(ev => {
             ev.preventDefault();
-            let existingPopup = window.open("", "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=1024");
+            let existingPopup = window.open("", "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=968");
 
             if(existingPopup.location.href == "about:blank"){
                 existingPopup.location = ddbUrl;
@@ -59,6 +58,12 @@ class DDBPopper {
 }
     
 class DDBURLEntryForm extends FormApplication {
+    constructor(...options){
+        super(...options);
+        console.log(...options);
+        this.data = options[0];
+        }
+  
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "ddb-url",
@@ -69,52 +74,25 @@ class DDBURLEntryForm extends FormApplication {
         });
     }
 
+
     /**
      * for a given actor (by id), find the setting
      */
     async getData() {
         return {
-            settings: game.settings.get("ddb-popper", data.id)
+            settings: game.settings.get("ddb-popper", this.data.id)
         };
     }
 
     _updateObject(event, formData) {
         try {
-            game.settings.set("ddb-popper", data.id, formdata.ddbURL);
+            game.settings.set("ddb-popper", this.data.id, formdata.ddbURL);
         } catch (e) {
             if(e.message == "That is not a registered game setting") {
-                game.settings.register("ddb-popper", data.id, formdata.ddbURL);
+                game.settings.register("ddb-popper", this.data.id, formdata.ddbURL);
             }
         }
         
     }
 
 }
-
-class CombatTrackerConfig extends FormApplication {
-    static get defaultOptions() {
-      const options = super.defaultOptions;
-      options.id = "combat-config";
-      options.title = "Combat Tracker Configuration";
-      options.classes = ["sheet", "combat-sheet"];
-      options.template = "templates/sheets/combat-config.html";
-      return options;
-    }
-  
-    /* -------------------------------------------- */
-  
-    async getData() {
-      const data = {
-        settings: game.settings.get("core", Combat.CONFIG_SETTING)
-      };
-      return data;
-    };
-  
-    /* -------------------------------------------- */
-  
-    _updateObject(event, formData) {
-      game.settings.set("core", Combat.CONFIG_SETTING, {
-        resource: formData.resource
-      });
-    }
-  }
