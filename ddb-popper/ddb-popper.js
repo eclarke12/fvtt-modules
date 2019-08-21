@@ -29,6 +29,7 @@ class DDBPopper {
 
     _hookRenderActorSheet() {
         Hooks.on("renderActorSheet5eCharacter", (app, html, data) => {
+            this._getActorDDBURL(data);
             console.log("app:",app,"html:",html,"data:",data);
             this._addDDBButton(html, data);
         });
