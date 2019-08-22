@@ -1,5 +1,5 @@
 # DDB Popper
-![DDB Popper Demo](https://imgur.com/t0FJnPH.mp4)
+![DDB Popper Demo](https://imgur.com/VaLJ8Yj.gif)
 
 ## What it does
 Adds a button to the 5e Actor Sheet that opens a popup of the matching D&D Beyond character for the actor.
@@ -9,7 +9,9 @@ Adds a button to the 5e Actor Sheet that opens a popup of the matching D&D Beyon
 2. Unzip into the /public/modules/ folder in your Foundry VTT installation
 
 It should look like this when installed:
+
 ![Modules Folder](https://imgur.com/uMKy5vf.png)
+
 ![DDB Popper Folder](https://imgur.com/9Tal5jl.png)
 
 ## How to use it
