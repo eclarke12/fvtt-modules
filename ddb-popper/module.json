@@ -8,5 +8,5 @@
     "scripts": ["ddb-popper.js"],
     "url": "https://github.com/eclarke12/fvtt-modules/ddb-popper",
     "manifest": "https://raw.githubusercontent.com/eclarke12/fvtt-modules/master/ddb-popper/module.json",
-    "update": "https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip"
+    "download": "https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip"
 }
