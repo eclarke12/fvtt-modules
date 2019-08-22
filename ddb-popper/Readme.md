@@ -1,4 +1,5 @@
 # DDB Popper
+[**Download**](https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip)
 ![DDB Popper Demo](https://github.com/eclarke12/fvtt-modules/blob/master/ddb_popper.gif)
 
 ## What it does
