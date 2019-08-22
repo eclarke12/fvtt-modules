@@ -103,11 +103,11 @@ class DDBPopper {
             ev.preventDefault();
             const actorDDBURL = await this._getActorDDBURL(data);
 
-            if ((this.existingPopup == null || this.existingPopup.closed) && (actorDDBURL == null || actorDDBURL.length == 0)){
+            if (actorDDBURL == null || actorDDBURL.length == 0){
                 new DDBURLEntryForm(actorDDBURL, data, {closeOnSubmit: true}).render(true);
             } else if ((this.existingPopup == null || this.existingPopup.closed) && actorDDBURL.length > 0) {
                 this.existingPopup = window.open(actorDDBURL, "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=968");
-            } else {
+            } else if (this.existingPopup && actorDDBURL.length > 0) {
                 this.existingPopup.focus();
             }
         });
