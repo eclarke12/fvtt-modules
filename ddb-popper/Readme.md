@@ -2,7 +2,7 @@
 
 ![DDB Popper Demo](https://github.com/eclarke12/fvtt-modules/blob/master/ddb_popper.gif)
 
-[**Download**](https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip)
+[**Download Module Zip**](https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip)
 
 ## What it does
 Adds a button to the 5e Actor Sheet that opens a popup of the matching D&D Beyond character for the actor.
