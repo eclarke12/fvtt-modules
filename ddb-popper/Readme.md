@@ -32,4 +32,3 @@ Note: if you want to change/remove the URL for an actor, simply right-click the 
 
 * Automatically close the DDB popup when the actor sheet is closed
 
-
