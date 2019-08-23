@@ -89,9 +89,8 @@ class DDBPopper {
         );
         
         /**
-         * Remove any existing instances of the button on the sheet
+         * Create an instance of the ddbButton before the close button
          */
-        windowHeader.find('.ddb-popup').remove();
         windowCloseBtn.before(ddbButton);
 
         /**
@@ -101,11 +100,10 @@ class DDBPopper {
          * or else simply focus the existing popup
          */
         ddbButton.click(async ev => {
-            ev.preventDefault();
             const actorDDBURL = await this._getActorDDBURL(data);
 
             if (actorDDBURL == null || actorDDBURL.length == 0){
-                new DDBURLEntryForm(actorDDBURL, data, {closeOnSubmit: true}).render(true);
+                this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
             } else if ((this.existingPopup == null || this.existingPopup.closed) && actorDDBURL.length > 0) {
                 this.existingPopup = window.open(actorDDBURL, DDBPopper.CONFIG.moduleName, DDBPopper.CONFIG.windowFeatures);
             } else if (this.existingPopup && actorDDBURL.length > 0) {
@@ -121,7 +119,7 @@ class DDBPopper {
             ev.preventDefault();
             const actorDDBURL = await this._getActorDDBURL(data);
 
-            new DDBURLEntryForm(actorDDBURL, data, {closeOnSubmit: true}).render(true);
+            this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
         });
 
         /**
@@ -134,6 +132,10 @@ class DDBPopper {
                 this.existingPopup.close();
             }
         });
+    }
+
+    _openURLForm(url, data, options){
+        new DDBURLEntryForm(url, data, options).render(true);
     }
 }
 
@@ -149,7 +151,6 @@ class DDBURLEntryForm extends FormApplication {
     constructor(actorDDBURL, data, options){
         super(data, options);
         this.data = data;
-        this.actorId = this.data.actor._id;
         this.ddbURL = actorDDBURL;
     }
     
@@ -185,11 +186,11 @@ class DDBURLEntryForm extends FormApplication {
      */
     async _updateObject(event, formData) {
         try {
-            await game.settings.set(DDBPopper.CONFIG.moduleName, this.actorId, formData.ddbCharacterURL);
+            await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, formData.ddbCharacterURL);
         } catch (e) {
             if(e.message == "This is not a registered game setting") {
-                await game.settings.register(DDBPopper.CONFIG.moduleName, this.actorId, DDBPopper.SETTINGS_META);
-                await game.settings.set(DDBPopper.CONFIG.moduleName, this.actorId, DDBPopper.SETTINGS_META);
+                await game.settings.register(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
+                await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
             } else {
                 throw(e);
             }   
