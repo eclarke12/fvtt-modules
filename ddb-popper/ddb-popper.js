@@ -16,7 +16,7 @@ class DDBPopper {
         return {
             moduleName: "ddb-popper",
             ddbLogo: "modules/ddb-popper/icons/dnd-beyond-b-red.png",
-            imgStyle: `display:inline-block;vertical-align:middle;height:16px`,
+            imgStyle: `vertical-align:middle;height:16px;margin-right:3px;margin-bottom:3px`,
             windowFeatures: "resizeable,scrollbars,location=no,width=768,height=968"
         }  
     }
@@ -84,7 +84,8 @@ class DDBPopper {
          */
         const ddbButton = $(
             `<a class="ddb-popup">
-                <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle}> DDB
+                <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle}> 
+                <span>DDB</span>
             </a>`
         );
         
