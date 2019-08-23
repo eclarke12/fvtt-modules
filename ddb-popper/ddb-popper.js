@@ -17,6 +17,7 @@ class DDBPopper {
             moduleName: "ddb-popper",
             ddbLogo: "modules/ddb-popper/icons/dnd-beyond-b-red.png",
             imgStyle: `display:inline-block;vertical-align:middle;height:16px`,
+            windowFeatures: "resizeable,scrollbars,location=no,width=768,height=968"
         }  
     }
 
@@ -106,7 +107,7 @@ class DDBPopper {
             if (actorDDBURL == null || actorDDBURL.length == 0){
                 new DDBURLEntryForm(actorDDBURL, data, {closeOnSubmit: true}).render(true);
             } else if ((this.existingPopup == null || this.existingPopup.closed) && actorDDBURL.length > 0) {
-                this.existingPopup = window.open(actorDDBURL, "ddb-popup", "resizeable,scrollbars,location=no,width=768,height=968");
+                this.existingPopup = window.open(actorDDBURL, DDBPopper.CONFIG.moduleName, DDBPopper.CONFIG.windowFeatures);
             } else if (this.existingPopup && actorDDBURL.length > 0) {
                 this.existingPopup.focus();
             }
@@ -121,6 +122,17 @@ class DDBPopper {
             const actorDDBURL = await this._getActorDDBURL(data);
 
             new DDBURLEntryForm(actorDDBURL, data, {closeOnSubmit: true}).render(true);
+        });
+
+        /**
+         * When the Close button is pressed close any open popups
+         */
+        windowCloseBtn.click(ev => {
+            ev.preventDefault();
+
+            if(this.existingPopup && !this.existingPopup.closed){
+                this.existingPopup.close();
+            }
         });
     }
 }
