@@ -2,11 +2,11 @@
     "name": "ddb-popper",
     "title": "D&D Beyond Character Sheet Popup",
     "description": "Allows opening the D&D Beyond character sheet from a Foundry FVTT Actor",
-    "version": "0.1",
+    "version": "0.2",
     "author": "Evan Clarke (errational)",
     "systems": ["dnd5e"],
     "scripts": ["ddb-popper.js"],
     "url": "https://github.com/eclarke12/fvtt-modules/ddb-popper",
     "manifest": "https://raw.githubusercontent.com/eclarke12/fvtt-modules/master/ddb-popper/module.json",
-    "update": "https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip"
+    "download": "https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip"
 }
