@@ -1,11 +1,14 @@
 # DDB Popper
+
 ![DDB Popper Demo](https://github.com/eclarke12/fvtt-modules/blob/master/ddb_popper.gif)
+
+[**Download Module Zip**](https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip)
 
 ## What it does
 Adds a button to the 5e Actor Sheet that opens a popup of the matching D&D Beyond character for the actor.
 
 ## How to install it
-1. Download the zip file
+1. Download the [**zip file**](https://github.com/eclarke12/fvtt-modules/raw/master/ddb-popper.zip)
 2. Unzip into the /public/modules/ folder in your Foundry VTT installation
 
 It should look like this when installed:
