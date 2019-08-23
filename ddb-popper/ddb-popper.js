@@ -83,7 +83,7 @@ class DDBPopper {
          * jquery reference to the D&D Beyond button to add to the sheet
          */
         const ddbButton = $(
-            `<a class="ddb-popup">
+            `<a class="ddb-popup" title="left-click to open, right-click to change URL">
                 <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle}> DDB
             </a>`
         );
