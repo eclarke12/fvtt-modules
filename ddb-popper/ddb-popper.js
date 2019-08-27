@@ -83,8 +83,8 @@ class DDBPopper {
          * jquery reference to the D&D Beyond button to add to the sheet
          */
         const ddbButton = $(
-            `<a class="ddb-popup" title="left-click to open, right-click to change URL">
-                <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle}> DDB
+            `<a class="ddb-popper" title="left-click to open, right-click to change URL">
+                <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle} />
                 <span>DDB</span>
             </a>`
         );
@@ -92,6 +92,7 @@ class DDBPopper {
         /**
          * Create an instance of the ddbButton before the close button
          */
+        windowHeader.find('.ddb-popper').remove();
         windowCloseBtn.before(ddbButton);
 
         /**
