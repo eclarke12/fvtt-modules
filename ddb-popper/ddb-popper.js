@@ -46,25 +46,20 @@ class DDBPopper {
     /**
      * For a given actor's data, get the D&D Beyond URL if it exists in settings, 
      * and if not, register and try again
-     * @param {Object} data -- an actor's data property
+     * @param {Object} actor -- an actor entity
      * @returns {String} ddbURL -- the matching D&D Beyond URL (if any)
      */
-    async _getActorDDBURL(data) {
-        let ddbURL;
+    async _getActorDDBURL(actor) {
+        let actorDDBURL;
 
-        try {
-            ddbURL = await game.settings.get(DDBPopper.CONFIG.moduleName, data.actor._id);
-        } catch (e) {
-            if(e.message == "This is not a registered game setting") {
-                await game.settings.register(DDBPopper.CONFIG.moduleName, data.actor._id, DDBPopper.SETTINGS_META);
-                ddbURL = await game.settings.get(DDBPopper.CONFIG.moduleName, data.actor._id);
-            } else {
-                ddbURL = null;
-                throw(e);
-            }
-        } finally {
-            return ddbURL;
+        if(actor.flags.ddbURL.length > 0) {
+            actorDDBURL = actor.flags.ddbURL;
+            return actorDDBURL;
         }
+        else {
+            return;
+        }
+
     }
 
     /**
@@ -102,7 +97,7 @@ class DDBPopper {
          * or else simply focus the existing popup
          */
         ddbButton.click(async ev => {
-            const actorDDBURL = await this._getActorDDBURL(data);
+            const actorDDBURL = await this._getActorDDBURL(app.entity);
 
             if (actorDDBURL == null || actorDDBURL.length == 0){
                 this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
@@ -119,7 +114,7 @@ class DDBPopper {
          */
         ddbButton.contextmenu(async ev => {
             ev.preventDefault();
-            const actorDDBURL = await this._getActorDDBURL(data);
+            const actorDDBURL = await this._getActorDDBURL(app.entity);
 
             this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
         });
@@ -150,7 +145,7 @@ class DDBPopper {
  * @param {Object} options -- any options to set (including those on the FormApplication/Application super classes)
  */
 class DDBURLEntryForm extends FormApplication {
-    constructor(actorDDBURL, data, options){
+    constructor(actor, actorDDBURL, data, options){
         super(data, options);
         this.data = data;
         this.ddbURL = actorDDBURL;
@@ -186,16 +181,20 @@ class DDBURLEntryForm extends FormApplication {
      * @param {Object} event -- the form submission event 
      * @param {Object} formData -- the form data
      */
-    async _updateObject(event, formData) {
+    async _updateObject(event, formData, actor) {
         try {
-            await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, formData.ddbCharacterURL);
+            actor = await game.actors.entities.find(a => a.id == this.data._id);
+            if(actor){
+                actor.update
+            }
+            //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, formData.ddbCharacterURL);
         } catch (e) {
-            if(e.message == "This is not a registered game setting") {
-                await game.settings.register(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
-                await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
-            } else {
-                throw(e);
-            }   
+            //if(e.message == "This is not a registered game setting") {
+                //await game.settings.register(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
+                //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
+            //} else {
+                //throw(e);
+            //}   
         }
         
     }
