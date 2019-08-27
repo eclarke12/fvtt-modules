@@ -16,22 +16,10 @@ class DDBPopper {
         return {
             moduleName: "ddb-popper",
             ddbLogo: "modules/ddb-popper/icons/dnd-beyond-b-red.png",
+            aTitle: "left-click to open, right-click to change URL",
             imgStyle: `vertical-align:middle;height:16px;margin-right:3px;margin-bottom:3px`,
             windowFeatures: "resizeable,scrollbars,location=no,width=768,height=968"
         }  
-    }
-
-    /**
-     * Metadata used to register settings
-     * @returns {Object} Settings Metadata
-     */
-    static get SETTINGS_META() {
-        return {
-            name: "ddbCharacterURL",
-            type: String,
-            scope: "world",
-            default: ""
-        }
     }
 
     /**
@@ -39,12 +27,12 @@ class DDBPopper {
      */
     _hookRenderActorSheet() {
         Hooks.on("renderActorSheet5eCharacter", (app, html, data) => {
-            this._addDDBButton(html, data);
+            this._addDDBButton(app, html, data);
         });
     }
 
     /**
-     * For a given actor's data, get the D&D Beyond URL if it exists in settings, 
+     * For a given actor's data, get the D&D Beyond URL if it exists in actor flags, 
      * and if not, register and try again
      * @param {Object} actor -- an actor entity
      * @returns {String} ddbURL -- the matching D&D Beyond URL (if any)
@@ -52,8 +40,8 @@ class DDBPopper {
     async _getActorDDBURL(actor) {
         let actorDDBURL;
 
-        if(actor.flags.ddbURL.length > 0) {
-            actorDDBURL = actor.flags.ddbURL;
+        if(actor.data.flags.ddbURL && actor.data.flags.ddbURL.length > 0) {
+            actorDDBURL = actor.data.flags.ddbURL;
             return actorDDBURL;
         }
         else {
@@ -64,10 +52,11 @@ class DDBPopper {
 
     /**
      * Adds the DDB button to the supplied html
+     * @param {Object} app -- the actor sheet app
      * @param {Object} html -- the html of the ActorSheet5eCharacter
      * @param {Object} data -- the data of the actor
      */
-    async _addDDBButton (html, data) {
+    async _addDDBButton (app, html, data) {
         /**
          * Finds the header and the close button
          */
@@ -78,7 +67,7 @@ class DDBPopper {
          * jquery reference to the D&D Beyond button to add to the sheet
          */
         const ddbButton = $(
-            `<a class="ddb-popper" title="left-click to open, right-click to change URL">
+            `<a class="ddb-popper" title=${DDBPopper.CONFIG.aTitle}>
                 <img src=${DDBPopper.CONFIG.ddbLogo} style=${DDBPopper.CONFIG.imgStyle} />
                 <span>DDB</span>
             </a>`
@@ -100,7 +89,7 @@ class DDBPopper {
             const actorDDBURL = await this._getActorDDBURL(app.entity);
 
             if (actorDDBURL == null || actorDDBURL.length == 0){
-                this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
+                this._openURLForm(app.entity, actorDDBURL, data, {closeOnSubmit: true});
             } else if ((this.existingPopup == null || this.existingPopup.closed) && actorDDBURL.length > 0) {
                 this.existingPopup = window.open(actorDDBURL, DDBPopper.CONFIG.moduleName, DDBPopper.CONFIG.windowFeatures);
             } else if (this.existingPopup && actorDDBURL.length > 0) {
@@ -116,7 +105,7 @@ class DDBPopper {
             ev.preventDefault();
             const actorDDBURL = await this._getActorDDBURL(app.entity);
 
-            this._openURLForm(actorDDBURL, data, {closeOnSubmit: true});
+            this._openURLForm(app.entity, actorDDBURL, data, {closeOnSubmit: true});
         });
 
         /**
@@ -131,8 +120,8 @@ class DDBPopper {
         });
     }
 
-    _openURLForm(url, data, options){
-        new DDBURLEntryForm(url, data, options).render(true);
+    _openURLForm(actor, url, data, options){
+        new DDBURLEntryForm(actor, url, data, options).render(true);
     }
 }
 
@@ -140,6 +129,7 @@ class DDBPopper {
  * A simple form for entering a URL.
  * If the DDB URL already exists for the Actor referenced in the Actor sheet,
  * display that in the form
+ * @param {Object} actor -- the actor entity from the Actor sheet
  * @param {String} actorDDBURL -- the DDB URL for the Actor that owns the Actor Sheet
  * @param {Object} data -- the actor data from the sheet
  * @param {Object} options -- any options to set (including those on the FormApplication/Application super classes)
@@ -147,6 +137,7 @@ class DDBPopper {
 class DDBURLEntryForm extends FormApplication {
     constructor(actor, actorDDBURL, data, options){
         super(data, options);
+        this.actor = actor;
         this.data = data;
         this.ddbURL = actorDDBURL;
     }
@@ -176,19 +167,18 @@ class DDBURLEntryForm extends FormApplication {
 
     /**
      * Executes on form submission.
-     * Attempts to set settings for the actor using formdata,
-     * if none exists, register them, then try again
+     * Attempts to set the ddbURL flag on the underlying Actor
      * @param {Object} event -- the form submission event 
      * @param {Object} formData -- the form data
      */
-    async _updateObject(event, formData, actor) {
+    async _updateObject(event, formData) {
         try {
-            actor = await game.actors.entities.find(a => a.id == this.data._id);
-            if(actor){
-                actor.update
+            if(this.actor){
+                this.actor.update({"flags.ddbURL":formData.ddbCharacterURL});
             }
             //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, formData.ddbCharacterURL);
         } catch (e) {
+            throw e;
             //if(e.message == "This is not a registered game setting") {
                 //await game.settings.register(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
                 //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
