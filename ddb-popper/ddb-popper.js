@@ -18,7 +18,10 @@ class DDBPopper {
             ddbLogo: "modules/ddb-popper/icons/dnd-beyond-b-red.png",
             aTitle: "left-click to open, right-click to change URL",
             imgStyle: `vertical-align:middle;height:16px;margin-right:3px;margin-bottom:3px`,
-            windowFeatures: "resizeable,scrollbars,location=no,width=768,height=968"
+            windowFeatures: "resizeable,scrollbars,location=no,width=768,height=968",
+            flagNames: {
+                ddbURL: "ddbURL"
+            }
         }  
     }
 
@@ -40,11 +43,11 @@ class DDBPopper {
     async _getActorDDBURL(actor) {
         let actorDDBURL;
 
-        if(actor.data.flags.ddbURL && actor.data.flags.ddbURL.length > 0) {
-            actorDDBURL = actor.data.flags.ddbURL;
+        try {
+            actorDDBURL = await actor.getFlag(DDBPopper.CONFIG.moduleName, DDBPopper.CONFIG.flagNames.ddbURL);
             return actorDDBURL;
-        }
-        else {
+        } catch (e) {
+            console.log(e);
             return;
         }
 
@@ -143,7 +146,7 @@ class DDBURLEntryForm extends FormApplication {
     }
     
     /**
-     * Default Options to add to the super FormApplication options
+     * Default Options for this FormApplication
      */
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
@@ -156,7 +159,7 @@ class DDBURLEntryForm extends FormApplication {
     }
 
     /**
-     * Provide data to the handlebars template
+     * Provide data (ddbURL if any) to the handlebars template
      */
     async getData() {
         const data = {
@@ -173,18 +176,9 @@ class DDBURLEntryForm extends FormApplication {
      */
     async _updateObject(event, formData) {
         try {
-            if(this.actor){
-                this.actor.update({"flags.ddbURL":formData.ddbCharacterURL});
-            }
-            //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, formData.ddbCharacterURL);
+            this.actor.setFlag(DDBPopper.CONFIG.moduleName, DDBPopper.CONFIG.flagNames.ddbURL, formData.ddbCharacterURL);
         } catch (e) {
-            throw e;
-            //if(e.message == "This is not a registered game setting") {
-                //await game.settings.register(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
-                //await game.settings.set(DDBPopper.CONFIG.moduleName, this.data.actor._id, DDBPopper.SETTINGS_META);
-            //} else {
-                //throw(e);
-            //}   
+            throw e;   
         }
         
     }
